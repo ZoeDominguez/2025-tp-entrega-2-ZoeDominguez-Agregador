@@ -34,9 +34,9 @@ public class Fachada implements FachadaAgregador {
   }
 
   @Autowired
-  public Fachada(JpaFuenteRepository fuenteRepository) {
-    this.fuenteRepository = fuenteRepository;
-  }
+    public Fachada(FuenteRepository fuenteRepository) {
+        this.fuenteRepository = fuenteRepository;
+    }
 
   @Override
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
