@@ -6,7 +6,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import ar.edu.utn.dds.k3003.clients.FuenteProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +27,6 @@ public class Fachada implements FachadaAgregador {
   private Agregador agregador = new Agregador();
 
   private final FuenteRepository fuenteRepository;
-  private final FuenteProxy fuenteProxy = new FuenteProxy(WebApp.createObjectMapper());
 
 
   protected Fachada() {
@@ -59,8 +57,9 @@ public class Fachada implements FachadaAgregador {
         .map(this::convertirAFuenteDTO)
         .orElseThrow(() -> new NoSuchElementException("Fuente no encontrada: " + fuenteId));
   }
-
-  /*public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
+  
+  @Override
+  public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
     agregador.setLista_fuentes(fuenteRepository.findAll());
     List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
 
@@ -70,15 +69,6 @@ public class Fachada implements FachadaAgregador {
     return hechosModelo.stream()
         .map(this::convertirADTO)
         .collect(Collectors.toList());
-  }
-*/
-  @Override
-  public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
-    try {
-      return fuenteProxy.buscarHechosXColeccion(nombreColeccion);
-    } catch (RuntimeException e) {
-      throw new NoSuchElementException("Error consultando hechos: " + e.getMessage());
-    }
   }
 
 

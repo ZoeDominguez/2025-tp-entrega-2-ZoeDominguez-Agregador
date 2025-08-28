@@ -1,46 +1,35 @@
 package ar.edu.utn.dds.k3003.app;
 
 import ar.edu.utn.dds.k3003.clients.FuenteProxy;
-import ar.edu.utn.dds.k3003.controller.ColeccionController;
-import ar.edu.utn.dds.k3003.controller.FuenteController;
 import ar.edu.utn.dds.k3003.facades.dtos.Constants;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.javalin.Javalin;
-import io.javalin.json.JavalinJackson;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import static ar.edu.utn.dds.k3003.Evaluador.createObjectMapper;
-
 @SpringBootApplication(scanBasePackages = "ar.edu.utn.dds.k3003")
 public class WebApp {
 
     public static void main(String[] args) {
-        var env = System.getenv();
-        var objectMapper = createObjectMapper();
+        SpringApplication.run(WebApp.class, args);
+       }
+
+     @Bean
+    public Fachada fachada(ObjectMapper objectMapper) {
         var fachada = new Fachada();
-        fachada.setFuenteProxy(new FuenteProxy(objectMapper));
-
-        var port = Integer.parseInt(env.getOrDefault("PORT", "8080"));
-
-        var app = Javalin.create(config -> {
-            config.jsonMapper(new JavalinJackson().updateMapper(mapper -> {
-                configureObjectMapper(mapper);
-            }));
-        }).start(port);
-
-        var coleccionController = new ColeccionController(fachada);
-        app.get("/colecciones/{coleccion}/hechos", coleccionController::listarHechosPorColeccion);
+        fachada.addFachadaFuentes("default", new FuenteProxy(objectMapper));
+        return fachada;
     }
 
-    public static ObjectMapper createObjectMapper() {
+    @Bean
+    public ObjectMapper objectMapper() {
         var objectMapper = new ObjectMapper();
         configureObjectMapper(objectMapper);
         return objectMapper;

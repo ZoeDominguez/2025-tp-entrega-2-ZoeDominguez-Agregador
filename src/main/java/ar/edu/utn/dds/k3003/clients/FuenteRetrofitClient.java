@@ -1,6 +1,5 @@
 package ar.edu.utn.dds.k3003.clients;
 import ar.edu.utn.dds.k3003.facades.dtos.ColeccionDTO;
-import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -9,9 +8,9 @@ import retrofit2.http.Path;
 import java.util.List;
 
 public interface FuenteRetrofitClient {
-    @GET
+    @GET("/colecciones")
     Call<List<ColeccionDTO>> getColecciones();
 
-    @GET("/{id}/hechos")
+    @GET("/colecciones/{id}/hechos")
     Call<List<HechoDTO>> getHechosPorColeccion(@Path("id") String id);
 }
