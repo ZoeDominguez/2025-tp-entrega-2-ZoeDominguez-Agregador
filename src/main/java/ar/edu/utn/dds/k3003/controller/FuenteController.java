@@ -5,16 +5,16 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
+import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
 
 @RestController
 @RequestMapping("/fuentes")
 public class FuenteController {
 
-    private final FachadaAgregador fachadaAgregador;
+    private final Fachada fachadaAgregador;
 
-    public FuenteController(FachadaAgregador fachadaAgregador) {
+    public FuenteController(Fachada fachadaAgregador) {
         this.fachadaAgregador = fachadaAgregador;
     }
 

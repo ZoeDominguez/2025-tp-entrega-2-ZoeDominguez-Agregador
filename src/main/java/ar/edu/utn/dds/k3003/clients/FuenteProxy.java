@@ -15,12 +15,9 @@ public class FuenteProxy implements FachadaFuente {
 
     private final FuenteRetrofitClient service;
 
-    public FuenteProxy(ObjectMapper objectMapper) {
-        var env = System.getenv();
-        String baseUrl = env.getOrDefault("URL_FUENTE", "https://two025-tp-juampivan.onrender.com");
-
+    public FuenteProxy(ObjectMapper objectMapper, String baseUrl) {
         var retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(baseUrl.endsWith("/") ? baseUrl : baseUrl + "/")
                 .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .build();
 

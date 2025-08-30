@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ar.edu.utn.dds.k3003.clients.FuenteProxy;
 import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.FachadaFuente;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
@@ -20,6 +21,7 @@ import ar.edu.utn.dds.k3003.model.Hecho;
 import ar.edu.utn.dds.k3003.repository.FuenteRepository;
 import ar.edu.utn.dds.k3003.repository.InMemoryFuenteRepo;
 import ar.edu.utn.dds.k3003.repository.JpaFuenteRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class Fachada implements FachadaAgregador {
@@ -28,13 +30,17 @@ public class Fachada implements FachadaAgregador {
 
   private final FuenteRepository fuenteRepository;
 
+  private final ObjectMapper objectMapper;
+
   protected Fachada() {
     this.fuenteRepository = new InMemoryFuenteRepo();
+    this.objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
   }
 
   @Autowired
-  public Fachada(JpaFuenteRepository fuenteRepository) {
+  public Fachada(JpaFuenteRepository fuenteRepository, ObjectMapper objectMapper) {
     this.fuenteRepository = fuenteRepository;
+    this.objectMapper = objectMapper;
   }
 
   @Override
@@ -42,7 +48,10 @@ public class Fachada implements FachadaAgregador {
     String id = UUID.randomUUID().toString();
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
     fuenteRepository.save(fuente);
-    return convertirAFuenteDTO(agregador.agregarFuente(fuente));
+    agregador.agregarFuente(fuente);
+    var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
+    this.addFachadaFuentes(fuente.getId(), proxy);
+    return convertirAFuenteDTO(fuente);
   }
 
   @Override
@@ -59,7 +68,15 @@ public class Fachada implements FachadaAgregador {
 
   @Override
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
-    agregador.setLista_fuentes(fuenteRepository.findAll());
+    List<Fuente> fuentes = fuenteRepository.findAll();
+    agregador.setLista_fuentes(fuentes);
+
+     for (Fuente fuente : fuentes) {
+        if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
+            var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
+            agregador.agregarFachadaAFuente(fuente.getId(), proxy);
+        }
+    }
     List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
 
     if (hechosModelo == null || hechosModelo.isEmpty()) {

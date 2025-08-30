@@ -8,9 +8,9 @@ import retrofit2.http.Path;
 import java.util.List;
 
 public interface FuenteRetrofitClient {
-    @GET("/colecciones")
+    @GET("/coleccion")
     Call<List<ColeccionDTO>> getColecciones();
 
-    @GET("/colecciones/{id}/hechos")
+    @GET("/coleccion/{id}/hechos")
     Call<List<HechoDTO>> getHechosPorColeccion(@Path("id") String id);
 }
