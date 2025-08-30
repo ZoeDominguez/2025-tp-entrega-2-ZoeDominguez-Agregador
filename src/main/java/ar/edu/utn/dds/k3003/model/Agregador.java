@@ -100,28 +100,4 @@ public class Agregador {
         fachadaFuentes.put(fuenteId, fuente);
         existe_Fuente.setFachadaFuente(fuente);
     }
-
-    public Map<String, FachadaFuente> getFachadaFuentes() {
-        return fachadaFuentes;
-    }
-
-    public void setFachadaFuentes(Map<String, FachadaFuente> fachadaFuentes) {
-        this.fachadaFuentes = fachadaFuentes;
-    }
-
-    public List<Fuente> getLista_fuentes() {
-        return lista_fuentes;
-    }
-
-    public void setLista_fuentes(List<Fuente> lista_fuentes) {
-        this.lista_fuentes = lista_fuentes;
-    }
-
-    public Map<String, ConsensosEnum> getTipoConsensoXColeccion() {
-        return tipoConsensoXColeccion;
-    }
-
-    public void setTipoConsensoXColeccion(Map<String, ConsensosEnum> tipoConsensoXColeccion) {
-        this.tipoConsensoXColeccion = tipoConsensoXColeccion;
-    }
 }

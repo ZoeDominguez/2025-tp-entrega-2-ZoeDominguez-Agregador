@@ -28,15 +28,14 @@ public class Fachada implements FachadaAgregador {
 
   private final FuenteRepository fuenteRepository;
 
-
   protected Fachada() {
     this.fuenteRepository = new InMemoryFuenteRepo();
   }
 
   @Autowired
-    public Fachada(FuenteRepository fuenteRepository) {
-        this.fuenteRepository = fuenteRepository;
-    }
+  public Fachada(JpaFuenteRepository fuenteRepository) {
+    this.fuenteRepository = fuenteRepository;
+  }
 
   @Override
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
@@ -57,7 +56,7 @@ public class Fachada implements FachadaAgregador {
         .map(this::convertirAFuenteDTO)
         .orElseThrow(() -> new NoSuchElementException("Fuente no encontrada: " + fuenteId));
   }
-  
+
   @Override
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
     agregador.setLista_fuentes(fuenteRepository.findAll());
@@ -70,7 +69,6 @@ public class Fachada implements FachadaAgregador {
         .map(this::convertirADTO)
         .collect(Collectors.toList());
   }
-
 
   @Override
   public void addFachadaFuentes(String fuenteId, FachadaFuente fuente) {
@@ -90,7 +88,5 @@ public class Fachada implements FachadaAgregador {
   private FuenteDTO convertirAFuenteDTO(Fuente fuente) {
     return new FuenteDTO(fuente.getId(), fuente.getNombre(), fuente.getEndpoint());
   }
-
-
 
 }

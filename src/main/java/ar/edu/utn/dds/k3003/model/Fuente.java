@@ -44,44 +44,4 @@ public class Fuente {
         this.nombre = nombre;
         this.endpoint = endpoint;
     }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public FachadaFuente getFachadaFuente() {
-        return fachadaFuente;
-    }
-
-    public void setFachadaFuente(FachadaFuente fachadaFuente) {
-        this.fachadaFuente = fachadaFuente;
-    }
-
-    public List<Hecho> getLista_hechos() {
-        return lista_hechos;
-    }
-
-    public void setLista_hechos(List<Hecho> lista_hechos) {
-        this.lista_hechos = lista_hechos;
-    }
 }
