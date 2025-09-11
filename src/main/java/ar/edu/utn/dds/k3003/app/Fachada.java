@@ -10,11 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ar.edu.utn.dds.k3003.clients.FuenteProxy;
-import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
-import ar.edu.utn.dds.k3003.facades.FachadaFuente;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
+import ar.edu.utn.dds.k3003.facades.FachadaFuente;
 import ar.edu.utn.dds.k3003.model.Agregador;
 import ar.edu.utn.dds.k3003.model.Fuente;
 import ar.edu.utn.dds.k3003.model.Hecho;
@@ -24,7 +23,7 @@ import ar.edu.utn.dds.k3003.repository.JpaFuenteRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class Fachada implements FachadaAgregador {
+public class Fachada {
 
   private Agregador agregador = new Agregador();
 
@@ -43,7 +42,7 @@ public class Fachada implements FachadaAgregador {
     this.objectMapper = objectMapper;
   }
 
-  @Override
+  
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
     String id = UUID.randomUUID().toString();
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
@@ -54,29 +53,22 @@ public class Fachada implements FachadaAgregador {
     return convertirAFuenteDTO(fuente);
   }
 
-  @Override
+  @Autowired
   public List<FuenteDTO> fuentes() {
     return fuenteRepository.findAll().stream().map(this::convertirAFuenteDTO).collect(Collectors.toList());
   }
 
-  @Override
+  @Autowired
   public FuenteDTO buscarFuenteXId(String fuenteId) throws NoSuchElementException {
     return fuenteRepository.findById(fuenteId)
         .map(this::convertirAFuenteDTO)
         .orElseThrow(() -> new NoSuchElementException("Fuente no encontrada: " + fuenteId));
   }
 
-  @Override
+  @Autowired
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
-    List<Fuente> fuentes = fuenteRepository.findAll();
-    agregador.setLista_fuentes(fuentes);
+    syncFuentes();
 
-     for (Fuente fuente : fuentes) {
-        if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
-            var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
-            agregador.agregarFachadaAFuente(fuente.getId(), proxy);
-        }
-    }
     List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
 
     if (hechosModelo == null || hechosModelo.isEmpty()) {
@@ -87,12 +79,12 @@ public class Fachada implements FachadaAgregador {
         .collect(Collectors.toList());
   }
 
-  @Override
+  @Autowired
   public void addFachadaFuentes(String fuenteId, FachadaFuente fuente) {
     agregador.agregarFachadaAFuente(fuenteId, fuente);
   }
 
-  @Override
+  @Autowired
   public void setConsensoStrategy(ConsensosEnum tipoConsenso, String nombreColeccion)
       throws InvalidParameterException {
     agregador.configurarConsenso(tipoConsenso, nombreColeccion);
@@ -105,5 +97,18 @@ public class Fachada implements FachadaAgregador {
   private FuenteDTO convertirAFuenteDTO(Fuente fuente) {
     return new FuenteDTO(fuente.getId(), fuente.getNombre(), fuente.getEndpoint());
   }
+
+  private void syncFuentes() {
+    List<Fuente> fuentes = fuenteRepository.findAll();
+    agregador.setLista_fuentes(fuentes);
+
+    for (Fuente fuente : fuentes) {
+        if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
+            var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
+            agregador.agregarFachadaAFuente(fuente.getId(), proxy);
+        }
+    }
+}
+
 
 }
