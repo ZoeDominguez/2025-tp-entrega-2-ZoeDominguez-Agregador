@@ -16,9 +16,8 @@ public class Agregador {
     private Map<String, FachadaFuente> fachadaFuentes = new HashMap<>();
     private Map<String, ConsensosEnum> tipoConsensoXColeccion = new HashMap<>();
 
-    public Fuente agregarFuente(Fuente newFuente) {
-        lista_fuentes.add(newFuente);
-        return newFuente;
+    public void setLista_fuentes(List<Fuente> fuentes) {
+        this.lista_fuentes = new ArrayList<>(fuentes);
     }
 
     public void configurarConsenso(ConsensosEnum consenso, String nombreColeccion) {
