@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.config.MetricsConfig;
+import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
 import io.micrometer.core.instrument.Timer;
 
@@ -14,11 +14,11 @@ import io.micrometer.core.instrument.Timer;
 @RequestMapping("/fuentes")
 public class FuenteController {
 
-    private final Fachada fachadaAgregador;
+    private final FachadaAgregador fachadaAgregador;
 
     private final MetricsConfig metricsConfig;
 
-    public FuenteController(Fachada fachadaAgregador, MetricsConfig metricsConfig) {
+    public FuenteController(FachadaAgregador fachadaAgregador, MetricsConfig metricsConfig) {
         this.fachadaAgregador = fachadaAgregador;
         this.metricsConfig = metricsConfig;
     }
@@ -46,13 +46,6 @@ public class FuenteController {
             metricsConfig.stopTimer(timer, "fuentes.agregadas.timer",
                     "agregador", "fuentes", "POST /fuentes");
         }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> borrar(@PathVariable String id) {
-        fachadaAgregador.eliminarFuente(id);
-        metricsConfig.incrementCounter("fuentes.eliminadas", "agregador", "fuentes", "DELETE /fuentes/{id}");
-        return ResponseEntity.noContent().build();
     }
     
 }

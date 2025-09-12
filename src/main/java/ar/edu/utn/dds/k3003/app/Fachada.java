@@ -13,6 +13,7 @@ import ar.edu.utn.dds.k3003.clients.FuenteProxy;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
+import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.FachadaFuente;
 import ar.edu.utn.dds.k3003.model.Agregador;
 import ar.edu.utn.dds.k3003.model.Fuente;
@@ -25,7 +26,7 @@ import jakarta.transaction.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class Fachada {
+public class Fachada implements FachadaAgregador {
 
   private Agregador agregador = new Agregador();
 
@@ -47,6 +48,7 @@ public class Fachada {
   }
 
   @Transactional
+  @Autowired
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
     String id = UUID.randomUUID().toString();
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
@@ -55,12 +57,13 @@ public class Fachada {
     return convertirAFuenteDTO(fuente);
   }
 
-
+  @Autowired
   public List<FuenteDTO> fuentes() {
     return fuenteRepository.findAll().stream().map(this::convertirAFuenteDTO).collect(Collectors.toList());
   }
 
 
+  @Autowired
   public FuenteDTO buscarFuenteXId(String fuenteId) throws NoSuchElementException {
     return fuenteRepository.findById(fuenteId)
         .map(this::convertirAFuenteDTO)
@@ -68,6 +71,7 @@ public class Fachada {
   }
 
  
+  @Autowired
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
 
     syncFuentesIfNeeded();
@@ -83,11 +87,13 @@ public class Fachada {
   }
 
 
+  @Autowired
   public void addFachadaFuentes(String fuenteId, FachadaFuente fuente) {
     agregador.agregarFachadaAFuente(fuenteId, fuente);
   }
 
 
+  @Autowired
   public void setConsensoStrategy(ConsensosEnum tipoConsenso, String nombreColeccion)
       throws InvalidParameterException {
     agregador.configurarConsenso(tipoConsenso, nombreColeccion);
@@ -119,11 +125,5 @@ public class Fachada {
       }
     }
     this.DB_outdated_Fuentes = false;
-  }
-
-
-  public void eliminarFuente(String id) {
-    fuenteRepository.deleteById(id);
-    this.DB_outdated_Fuentes = true;
   }
 }

@@ -1,7 +1,7 @@
 package ar.edu.utn.dds.k3003.controller;
 
-import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.config.MetricsConfig;
+import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 import io.micrometer.core.instrument.Timer;
 
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/consenso")
 public class ConsensoController {
 
-    private final Fachada fachadaAgregador;
+    private final FachadaAgregador fachadaAgregador;
     private final MetricsConfig metricsConfig;
 
-    public ConsensoController(Fachada fachadaAgregador, MetricsConfig metricsConfig) {
+    public ConsensoController(FachadaAgregador fachadaAgregador, MetricsConfig metricsConfig) {
         this.fachadaAgregador = fachadaAgregador;
         this.metricsConfig = metricsConfig;
     }

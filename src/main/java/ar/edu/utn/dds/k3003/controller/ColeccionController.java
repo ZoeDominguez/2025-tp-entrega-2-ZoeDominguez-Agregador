@@ -1,7 +1,7 @@
 package ar.edu.utn.dds.k3003.controller;
 
-import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.config.MetricsConfig;
+import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
 import io.micrometer.core.instrument.Timer;
 
@@ -14,10 +14,10 @@ import java.util.List;
 @RequestMapping("/coleccion")
 public class ColeccionController {
 
-    private final Fachada fachadaAgregador;
+    private final FachadaAgregador fachadaAgregador;
     private final MetricsConfig metricsConfig;
 
-    public ColeccionController(Fachada fachadaAgregador, MetricsConfig metricsConfig) {
+    public ColeccionController(FachadaAgregador fachadaAgregador, MetricsConfig metricsConfig) {
         this.fachadaAgregador = fachadaAgregador;
         this.metricsConfig = metricsConfig;
     }
