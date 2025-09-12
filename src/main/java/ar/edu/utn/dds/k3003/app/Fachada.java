@@ -48,7 +48,7 @@ public class Fachada implements FachadaAgregador {
   }
 
   @Transactional
-  @Autowired
+  @Override
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
     String id = UUID.randomUUID().toString();
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
@@ -57,13 +57,13 @@ public class Fachada implements FachadaAgregador {
     return convertirAFuenteDTO(fuente);
   }
 
-  @Autowired
+  @Override
   public List<FuenteDTO> fuentes() {
     return fuenteRepository.findAll().stream().map(this::convertirAFuenteDTO).collect(Collectors.toList());
   }
 
 
-  @Autowired
+  @Override
   public FuenteDTO buscarFuenteXId(String fuenteId) throws NoSuchElementException {
     return fuenteRepository.findById(fuenteId)
         .map(this::convertirAFuenteDTO)
@@ -71,7 +71,7 @@ public class Fachada implements FachadaAgregador {
   }
 
  
-  @Autowired
+  @Override
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
 
     syncFuentesIfNeeded();
@@ -87,13 +87,13 @@ public class Fachada implements FachadaAgregador {
   }
 
 
-  @Autowired
+  @Override
   public void addFachadaFuentes(String fuenteId, FachadaFuente fuente) {
     agregador.agregarFachadaAFuente(fuenteId, fuente);
   }
 
 
-  @Autowired
+  @Override
   public void setConsensoStrategy(ConsensosEnum tipoConsenso, String nombreColeccion)
       throws InvalidParameterException {
     agregador.configurarConsenso(tipoConsenso, nombreColeccion);
