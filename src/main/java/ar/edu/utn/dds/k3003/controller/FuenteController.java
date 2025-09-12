@@ -27,11 +27,11 @@ public class FuenteController {
     public ResponseEntity<List<FuenteDTO>> fuentes() {
         Timer.Sample timer = metricsConfig.startTimer();
         try {
-            metricsConfig.incrementCounter("fuentes.consultas", "agregador", "fuentes", "GET /fuentes");
+            metricsConfig.incrementCounter("fuentes.consultas", "agregador", "fuentes", "listar", "GET /fuentes");
             return ResponseEntity.ok(fachadaAgregador.fuentes());
         } finally {
             metricsConfig.stopTimer(timer, "get_fuentes.timer",
-                    "agregador", "fuentes", "GET /fuentes");
+                    "agregador", "fuentes", "listar", "GET /fuentes");
         }
     }
 
@@ -39,12 +39,12 @@ public class FuenteController {
     public ResponseEntity<FuenteDTO> agregarFuente(@RequestBody FuenteDTO fuenteDTO) {
         Timer.Sample timer = metricsConfig.startTimer();
         try {
-            metricsConfig.incrementCounter("fuentes.agregadas", "agregador", "fuentes", "POST /fuentes");
+            metricsConfig.incrementCounter("fuentes.agregadas", "agregador", "contador", "fuentes", "POST /fuentes");
 
             return ResponseEntity.ok(fachadaAgregador.agregar(fuenteDTO));
         }finally {
             metricsConfig.stopTimer(timer, "fuentes.agregadas.timer",
-                    "agregador", "fuentes", "POST /fuentes");
+                    "agregador", "contador", "fuentes", "POST /fuentes");
         }
     }
     

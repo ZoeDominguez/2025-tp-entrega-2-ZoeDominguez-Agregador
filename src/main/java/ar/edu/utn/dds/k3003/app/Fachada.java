@@ -38,7 +38,7 @@ public class Fachada implements FachadaAgregador {
 
   protected Fachada() {
     this.fuenteRepository = new InMemoryFuenteRepo();
-    this.objectMapper = new ObjectMapper();
+    this.objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
   }
 
   @Autowired
@@ -70,7 +70,8 @@ public class Fachada implements FachadaAgregador {
         .orElseThrow(() -> new NoSuchElementException("Fuente no encontrada: " + fuenteId));
   }
 
- 
+
+  @Transactional
   @Override
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
 

@@ -26,10 +26,10 @@ public class ColeccionController {
     public ResponseEntity<List<HechoDTO>> listarHechosPorColeccion(@PathVariable String nombre) {
         Timer.Sample timer = metricsConfig.startTimer();
         try {
-            metricsConfig.incrementCounter("coleccion.hechos.consultados", "agregador", "coleccion", nombre);
+            metricsConfig.incrementCounter("coleccion.hechos.consultados", "componente", "agregador", "tipo", "coleccion", "coleccion", nombre);
             return ResponseEntity.ok(fachadaAgregador.hechos(nombre));
         } finally {
-            metricsConfig.stopTimer(timer, "coleccion.timer", "agregador", "coleccion", "GET /coleccion/{nombre}/hechos");
+            metricsConfig.stopTimer(timer, "coleccion.timer", "componente", "agregador","tipo", "coleccion","metodo", "GET /coleccion/{nombre}/hechos");
         }
         
     }

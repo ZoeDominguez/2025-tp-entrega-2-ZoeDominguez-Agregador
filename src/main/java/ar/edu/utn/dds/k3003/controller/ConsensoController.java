@@ -1,7 +1,6 @@
 package ar.edu.utn.dds.k3003.controller;
 
 import ar.edu.utn.dds.k3003.config.MetricsConfig;
-import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 import io.micrometer.core.instrument.Timer;
 
@@ -14,11 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/consenso")
 public class ConsensoController {
 
-    private final FachadaAgregador fachadaAgregador;
     private final MetricsConfig metricsConfig;
 
-    public ConsensoController(FachadaAgregador fachadaAgregador, MetricsConfig metricsConfig) {
-        this.fachadaAgregador = fachadaAgregador;
+    public ConsensoController(MetricsConfig metricsConfig) {
         this.metricsConfig = metricsConfig;
     }
 
@@ -29,13 +26,10 @@ public class ConsensoController {
             ConsensosEnum consenso = ConsensosEnum.valueOf(body.get("tipo").toUpperCase());
             String coleccion = body.get("coleccion");
 
-            fachadaAgregador.setConsensoStrategy(consenso, coleccion);
-            metricsConfig.incrementCounter("consenso.configurado",
-            "tipo", "agregador", "consenso", consenso.name(),
-            "coleccion", coleccion);
+            metricsConfig.incrementCounter("consenso.configurado", "agregador","tipo","consenso", consenso.name(),"coleccion", coleccion);
             return ResponseEntity.noContent().build();
         } finally {
-            metricsConfig.stopTimer(timer, "consenso.timer", "agregador", "consenso", "PATCH /consenso");
+            metricsConfig.stopTimer(timer, "consenso.timer", "agregador", "tipo", "consenso", "PATCH /consenso");
         }
         
     }
