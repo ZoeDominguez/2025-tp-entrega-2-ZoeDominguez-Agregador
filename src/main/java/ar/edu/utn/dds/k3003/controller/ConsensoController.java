@@ -1,6 +1,6 @@
 package ar.edu.utn.dds.k3003.controller;
 
-import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
+import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 
 import java.util.Map;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/consenso")
 public class ConsensoController {
 
-    private final FachadaAgregador fachadaAgregador;
+    private final Fachada fachadaAgregador;
 
-    public ConsensoController(FachadaAgregador fachadaAgregador) {
+    public ConsensoController(Fachada fachadaAgregador) {
         this.fachadaAgregador = fachadaAgregador;
     }
 
