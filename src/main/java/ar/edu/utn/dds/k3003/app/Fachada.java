@@ -21,8 +21,6 @@ import ar.edu.utn.dds.k3003.repository.FuenteRepository;
 import ar.edu.utn.dds.k3003.repository.InMemoryFuenteRepo;
 import ar.edu.utn.dds.k3003.repository.JpaFuenteRepository;
 import jakarta.transaction.Transactional;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,19 +35,15 @@ public class Fachada {
 
   private boolean DB_outdated_Fuentes= true;
 
-  private final MeterRegistry registry;
-
   protected Fachada() {
     this.fuenteRepository = new InMemoryFuenteRepo();
     this.objectMapper = new ObjectMapper();
-    this.registry  = new SimpleMeterRegistry();
   }
 
   @Autowired
-  public Fachada(JpaFuenteRepository fuenteRepository, ObjectMapper objectMapper, MeterRegistry registry) {
+  public Fachada(JpaFuenteRepository fuenteRepository, ObjectMapper objectMapper) {
     this.fuenteRepository = fuenteRepository;
     this.objectMapper = objectMapper;
-    this.registry = registry;
   }
 
   @Transactional
@@ -58,7 +52,6 @@ public class Fachada {
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
     fuenteRepository.save(fuente);
     this.DB_outdated_Fuentes= true;
-    registry.counter("fuentes.agregadas").increment();
     return convertirAFuenteDTO(fuente);
   }
 
@@ -76,27 +69,17 @@ public class Fachada {
 
  
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
-    registry.counter("hechos.consultas").increment();
 
-    try{
-      syncFuentesIfNeeded();
+    syncFuentesIfNeeded();
 
-      List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
+    List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
 
-      if (hechosModelo == null || hechosModelo.isEmpty()) {
-        registry.counter("hechos.consultas", "status", "empty").increment();
-        throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
-      }
-      registry.counter("hechos.consultas", "status", "ok").increment();
-      return hechosModelo.stream()
-          .map(this::convertirADTO)
-          .collect(Collectors.toList());
-
-    } catch (Exception e) {
-      registry.counter("hechos.consultas", "status", "error").increment();
-      throw e;
+    if (hechosModelo == null || hechosModelo.isEmpty()) {
+      throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
     }
-    
+    return hechosModelo.stream()
+      .map(this::convertirADTO)
+      .collect(Collectors.toList());
   }
 
 
@@ -123,29 +106,24 @@ public class Fachada {
   }
 
   private void syncFuentesIfNeeded() {
-    registry.timer("fuentes.sync.duration").record(() -> {
-      if (!this.DB_outdated_Fuentes) {
-        return;
-      }
-      List<Fuente> fuentes = fuenteRepository.findAll();
-      agregador.setLista_fuentes(fuentes);
+    if (!this.DB_outdated_Fuentes) {
+      return;
+    }
+    List<Fuente> fuentes = fuenteRepository.findAll();
+    agregador.setLista_fuentes(fuentes);
 
-      for (Fuente fuente : fuentes) {
-        if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
-        var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
-        agregador.agregarFachadaAFuente(fuente.getId(), proxy);
-        }
+    for (Fuente fuente : fuentes) {
+      if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
+      var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
+      agregador.agregarFachadaAFuente(fuente.getId(), proxy);
       }
-      this.DB_outdated_Fuentes = false;
-    });
+    }
+    this.DB_outdated_Fuentes = false;
   }
 
 
   public void eliminarFuente(String id) {
     fuenteRepository.deleteById(id);
     this.DB_outdated_Fuentes = true;
-    registry.counter("fuentes.eliminadas").increment();
   }
-
-
 }
