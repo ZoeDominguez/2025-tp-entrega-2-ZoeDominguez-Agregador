@@ -31,7 +31,7 @@ public class DDMetricsUtils {
 
 			@Override
 			public String apiKey() {
-				String apiKey = System.getenv("DDAPI");
+				String apiKey = System.getenv("DD_API_KEY");
 				try {
 					return URLEncoder.encode(apiKey, StandardCharsets.UTF_8.toString());
 				} catch (UnsupportedEncodingException e) {

@@ -22,6 +22,7 @@ import ar.edu.utn.dds.k3003.repository.InMemoryFuenteRepo;
 import ar.edu.utn.dds.k3003.repository.JpaFuenteRepository;
 import jakarta.transaction.Transactional;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,7 +42,7 @@ public class Fachada {
   protected Fachada() {
     this.fuenteRepository = new InMemoryFuenteRepo();
     this.objectMapper = new ObjectMapper();
-    this.registry = null;
+    this.registry  = new SimpleMeterRegistry();
   }
 
   @Autowired
@@ -57,7 +58,7 @@ public class Fachada {
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
     fuenteRepository.save(fuente);
     this.DB_outdated_Fuentes= true;
-    registry.counter("dds.fuentes.agregadas").increment();
+    registry.counter("fuentes.agregadas").increment();
     return convertirAFuenteDTO(fuente);
   }
 
@@ -75,7 +76,7 @@ public class Fachada {
 
  
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
-    registry.counter("dds.hechos.consultas").increment();
+    registry.counter("hechos.consultas").increment();
 
     try{
       syncFuentesIfNeeded();
@@ -83,16 +84,16 @@ public class Fachada {
       List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
 
       if (hechosModelo == null || hechosModelo.isEmpty()) {
-        registry.counter("dds.hechos.consultas", "status", "empty").increment();
+        registry.counter("hechos.consultas", "status", "empty").increment();
         throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
       }
-      registry.counter("dds.hechos.consultas", "status", "ok").increment();
+      registry.counter("hechos.consultas", "status", "ok").increment();
       return hechosModelo.stream()
           .map(this::convertirADTO)
           .collect(Collectors.toList());
 
     } catch (Exception e) {
-      registry.counter("dds.hechos.consultas", "status", "error").increment();
+      registry.counter("hechos.consultas", "status", "error").increment();
       throw e;
     }
     
@@ -122,7 +123,7 @@ public class Fachada {
   }
 
   private void syncFuentesIfNeeded() {
-    registry.timer("dds.fuentes.sync.duration").record(() -> {
+    registry.timer("fuentes.sync.duration").record(() -> {
       if (!this.DB_outdated_Fuentes) {
         return;
       }
@@ -143,7 +144,7 @@ public class Fachada {
   public void eliminarFuente(String id) {
     fuenteRepository.deleteById(id);
     this.DB_outdated_Fuentes = true;
-    registry.counter("dds.fuentes.eliminadas").increment();
+    registry.counter("fuentes.eliminadas").increment();
   }
 
 
