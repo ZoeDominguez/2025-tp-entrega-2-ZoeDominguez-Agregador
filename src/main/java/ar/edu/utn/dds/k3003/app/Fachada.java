@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ar.edu.utn.dds.k3003.clients.FuenteProxy;
@@ -20,6 +20,9 @@ import ar.edu.utn.dds.k3003.model.Hecho;
 import ar.edu.utn.dds.k3003.repository.FuenteRepository;
 import ar.edu.utn.dds.k3003.repository.InMemoryFuenteRepo;
 import ar.edu.utn.dds.k3003.repository.JpaFuenteRepository;
+import jakarta.transaction.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -33,23 +36,28 @@ public class Fachada {
 
   private boolean DB_outdated_Fuentes= true;
 
+  private final MeterRegistry registry;
+
   protected Fachada() {
     this.fuenteRepository = new InMemoryFuenteRepo();
     this.objectMapper = new ObjectMapper();
+    this.registry = null;
   }
 
-
-  public Fachada(JpaFuenteRepository fuenteRepository, ObjectMapper objectMapper) {
+  @Autowired
+  public Fachada(JpaFuenteRepository fuenteRepository, ObjectMapper objectMapper, MeterRegistry registry) {
     this.fuenteRepository = fuenteRepository;
     this.objectMapper = objectMapper;
+    this.registry = registry;
   }
 
-  
+  @Transactional
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
     String id = UUID.randomUUID().toString();
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
     fuenteRepository.save(fuente);
-    DB_outdated_Fuentes = true;
+    this.DB_outdated_Fuentes= true;
+    registry.counter("dds.fuentes.agregadas").increment();
     return convertirAFuenteDTO(fuente);
   }
 
@@ -67,16 +75,27 @@ public class Fachada {
 
  
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
-    syncFuentesIfNeeded();
+    registry.counter("dds.hechos.consultas").increment();
 
-    List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
+    try{
+      syncFuentesIfNeeded();
 
-    if (hechosModelo == null || hechosModelo.isEmpty()) {
-      throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
+      List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
+
+      if (hechosModelo == null || hechosModelo.isEmpty()) {
+        registry.counter("dds.hechos.consultas", "status", "empty").increment();
+        throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
+      }
+      registry.counter("dds.hechos.consultas", "status", "ok").increment();
+      return hechosModelo.stream()
+          .map(this::convertirADTO)
+          .collect(Collectors.toList());
+
+    } catch (Exception e) {
+      registry.counter("dds.hechos.consultas", "status", "error").increment();
+      throw e;
     }
-    return hechosModelo.stream()
-        .map(this::convertirADTO)
-        .collect(Collectors.toList());
+    
   }
 
 
@@ -103,20 +122,29 @@ public class Fachada {
   }
 
   private void syncFuentesIfNeeded() {
-    if (!DB_outdated_Fuentes) {
-      return;
-    }
-    List<Fuente> fuentes = fuenteRepository.findAll();
-    agregador.setLista_fuentes(fuentes);
-
-    for (Fuente fuente : fuentes) {
-      if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
-      var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
-      agregador.agregarFachadaAFuente(fuente.getId(), proxy);
+    registry.timer("dds.fuentes.sync.duration").record(() -> {
+      if (!this.DB_outdated_Fuentes) {
+        return;
       }
-    }
-    DB_outdated_Fuentes = false;
-}
+      List<Fuente> fuentes = fuenteRepository.findAll();
+      agregador.setLista_fuentes(fuentes);
+
+      for (Fuente fuente : fuentes) {
+        if (!agregador.getFachadaFuentes().containsKey(fuente.getId())) {
+        var proxy = new FuenteProxy(objectMapper, fuente.getEndpoint());
+        agregador.agregarFachadaAFuente(fuente.getId(), proxy);
+        }
+      }
+      this.DB_outdated_Fuentes = false;
+    });
+  }
+
+
+  public void eliminarFuente(String id) {
+    fuenteRepository.deleteById(id);
+    this.DB_outdated_Fuentes = true;
+    registry.counter("dds.fuentes.eliminadas").increment();
+  }
 
 
 }

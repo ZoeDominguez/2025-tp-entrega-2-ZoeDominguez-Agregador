@@ -33,4 +33,14 @@ public class InMemoryFuenteRepo implements FuenteRepository {
     public List<Fuente> findAll() {
         return new ArrayList<>(Fuentes);
     }
+
+    @Override
+    public void deleteById(String id){
+        this.Fuentes.remove(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        this.Fuentes.clear();
+    }
 }

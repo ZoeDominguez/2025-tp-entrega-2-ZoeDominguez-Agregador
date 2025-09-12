@@ -28,4 +28,10 @@ public class FuenteController {
         return ResponseEntity.ok(fachadaAgregador.agregar(fuenteDTO));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> borrar(@PathVariable String id) {
+        fachadaAgregador.eliminarFuente(id);
+        return ResponseEntity.noContent().build();
+    }
+    
 }
