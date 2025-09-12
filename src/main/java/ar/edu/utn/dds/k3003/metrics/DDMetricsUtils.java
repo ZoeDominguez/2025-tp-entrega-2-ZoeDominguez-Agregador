@@ -1,8 +1,5 @@
 package ar.edu.utn.dds.k3003.metrics;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import io.micrometer.core.instrument.Clock;
@@ -31,13 +28,7 @@ public class DDMetricsUtils {
 
 			@Override
 			public String apiKey() {
-				String apiKey = System.getenv("DDAPI");
-				try {
-					return URLEncoder.encode(apiKey, StandardCharsets.UTF_8.toString());
-				} catch (UnsupportedEncodingException e) {
-					log.warn("Failed to encode API key, using raw value");
-					return apiKey;
-				}
+				return System.getenv("DDAPI");
 			}
 
 			@Override
