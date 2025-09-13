@@ -43,8 +43,6 @@ public class MetricsConfig {
         }
         sample.stop(timerBuilder.register(meterRegistry));
     }
-
-    // Método alternativo para mayor claridad
     public void incrementCounterWithTags(String metricName, Map<String, String> tags) {
         Counter.Builder counterBuilder = Counter.builder(metricName);
         tags.forEach(counterBuilder::tag);
