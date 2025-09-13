@@ -6,6 +6,7 @@ import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 import io.micrometer.core.instrument.Timer;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +25,23 @@ public class ConsensoController {
     }
 
     @PatchMapping
-    public ResponseEntity<Void> configurarConsenso(@RequestBody Map<String, String> body) {
+    public ResponseEntity<String> configurarConsenso(@RequestBody Map<String, String> body) {
         Timer.Sample timer = metricsConfig.startTimer();
         try {
             ConsensosEnum consenso = ConsensosEnum.valueOf(body.get("tipo").toUpperCase());
             String coleccion = body.get("coleccion");
 
+            // Verificar que la colección existe intentando obtener hechos
+            try {
+                fachadaAgregador.hechos(coleccion); // Esto lanzará excepción si la colección no existe
+            } catch (NoSuchElementException e) {
+                return ResponseEntity.notFound().build();
+            }
+
             metricsConfig.incrementCounter("consenso.configurado", "agregador","tipo","consenso", consenso.name(),"coleccion", coleccion);
+            
             fachadaAgregador.setConsensoStrategy(consenso, coleccion);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Configuración aplicada correctamente");
         } finally {
             metricsConfig.stopTimer(timer, "consenso.timer", "agregador", "tipo", "consenso", "PATCH /consenso");
         }

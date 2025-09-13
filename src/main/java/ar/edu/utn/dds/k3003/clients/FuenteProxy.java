@@ -39,9 +39,12 @@ public class FuenteProxy implements FachadaFuente {
 
     @Override
     public List<HechoDTO> buscarHechosXColeccion(String id) {
+        System.out.println("Buscando hechos para colección ID: '" + id + "'");
         try {
             var response = service.getHechosPorColeccion(id).execute();
+            System.out.println("Response code: " + response.code());
             if (response.isSuccessful() && response.body() != null) {
+                System.out.println("Hechos encontrados: " + response.body().size());
                 return response.body();
             }
             throw new RuntimeException("Error al obtener hechos: " + response.code());

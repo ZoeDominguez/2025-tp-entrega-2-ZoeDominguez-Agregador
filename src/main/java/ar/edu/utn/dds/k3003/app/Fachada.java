@@ -75,9 +75,15 @@ public class Fachada implements FachadaAgregador {
   @Override
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
 
+    System.out.println("Buscando hechos para colección: '" + nombreColeccion + "'");
+
     syncFuentesIfNeeded();
 
+    System.out.println("Fuentes cargadas: " + agregador.getFachadaFuentes().size());
+
     List<Hecho> hechosModelo = agregador.obtenerHechosPorColeccion(nombreColeccion);
+
+    System.out.println("Hechos encontrados: " + (hechosModelo != null ? hechosModelo.size() : "null"));
 
     if (hechosModelo == null || hechosModelo.isEmpty()) {
       throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
