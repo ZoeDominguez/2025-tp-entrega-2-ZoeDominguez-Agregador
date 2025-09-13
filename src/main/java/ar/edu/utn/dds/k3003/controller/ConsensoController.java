@@ -8,6 +8,7 @@ import io.micrometer.core.instrument.Timer;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,8 @@ public class ConsensoController {
             try {
                 fachadaAgregador.hechos(coleccion); // Esto lanzará excepción si la colección no existe
             } catch (NoSuchElementException e) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Colección no encontrada: '" + coleccion + "'");
             }
 
             metricsConfig.incrementCounter("consenso.configurado", "agregador","tipo","consenso", consenso.name(),"coleccion", coleccion);
