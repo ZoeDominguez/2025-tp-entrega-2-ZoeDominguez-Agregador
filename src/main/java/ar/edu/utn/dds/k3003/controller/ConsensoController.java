@@ -1,6 +1,7 @@
 package ar.edu.utn.dds.k3003.controller;
 
 import ar.edu.utn.dds.k3003.config.MetricsConfig;
+import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
 import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
 import io.micrometer.core.instrument.Timer;
 
@@ -15,8 +16,11 @@ public class ConsensoController {
 
     private final MetricsConfig metricsConfig;
 
-    public ConsensoController(MetricsConfig metricsConfig) {
+    private final FachadaAgregador fachadaAgregador;
+
+    public ConsensoController(MetricsConfig metricsConfig, FachadaAgregador fachadaAgregador) {
         this.metricsConfig = metricsConfig;
+        this.fachadaAgregador = fachadaAgregador;
     }
 
     @PatchMapping
@@ -27,6 +31,7 @@ public class ConsensoController {
             String coleccion = body.get("coleccion");
 
             metricsConfig.incrementCounter("consenso.configurado", "agregador","tipo","consenso", consenso.name(),"coleccion", coleccion);
+            fachadaAgregador.setConsensoStrategy(consenso, coleccion);
             return ResponseEntity.noContent().build();
         } finally {
             metricsConfig.stopTimer(timer, "consenso.timer", "agregador", "tipo", "consenso", "PATCH /consenso");
