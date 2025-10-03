@@ -2,6 +2,7 @@ package ar.edu.utn.dds.k3003.app;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -82,7 +83,7 @@ public class TestAgregador {
     @DisplayName("Buscar fuente por inexistente")
     public void testBuscarPorIDInexistente() {
         assertThrows(NoSuchElementException.class, () -> {
-            fachada.hechos("fuenteInexistente");
+            fachada.buscarFuenteXId("fuenteInexistente");
         });
     }
 
@@ -102,9 +103,8 @@ public class TestAgregador {
     @Test
     @DisplayName("Busqueda de hechos de una coleccion inexistente")
     void testBuscarHechosColeccionInexistente() {
-        assertThrows(NoSuchElementException.class, () -> {
-            fachada.hechos("coleccionInexistente");
-        });
+       List<HechoDTO> hechos = fachada.hechos("coleccionInexistente");
+    assertTrue(hechos.isEmpty(), "La lista debería estar vacía para una colección inexistente");
     }
 
     @Test

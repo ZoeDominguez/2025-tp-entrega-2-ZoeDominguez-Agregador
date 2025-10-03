@@ -22,30 +22,34 @@ public class Agregador {
         tipoConsensoXColeccion.put(nombreColeccion, consenso);
     }
 
-    private List<Hecho> obtenerHechosDeTodasLasFuentes(String nombreColeccion) {
-        List<Hecho> hechos = new ArrayList<>();
+    private List<Hecho> obtenerHechosDeTodasLasFuentes(
+        String nombreColeccion, boolean sinSolicitudes) {
+    List<Hecho> hechos = new ArrayList<>();
 
-        for (Fuente fuente : lista_fuentes) {
-            FachadaFuente fachada = fachadaFuentes.get(fuente.getId());
+    for (Fuente fuente : lista_fuentes) {
+        FachadaFuente fachada = fachadaFuentes.get(fuente.getId());
+        if (fachada != null) {
+            try {
+                List<HechoDTO> hechosDTO = sinSolicitudes
+                        ? fachada.buscarHechosXColeccionSinSolicitudes(nombreColeccion)
+                        : fachada.buscarHechosXColeccion(nombreColeccion);
 
-            if (fachada != null) {
-                try {
-                    List<HechoDTO> hechosDTO = fachada.buscarHechosXColeccion(nombreColeccion);
-                    hechos.addAll(
-                            hechosDTO.stream()
-                                    .map(dto -> {
-                                        Hecho hecho = new Hecho(dto.titulo(), dto.id(), dto.nombreColeccion());
-                                        hecho.setOrigen(fuente.getId());
-                                        return hecho;
-                                    }).toList());
-                } catch (NoSuchElementException e) {
-                    continue;
-                }
+                hechos.addAll(
+                    hechosDTO.stream()
+                        .map(dto -> {
+                            Hecho hecho = new Hecho(dto.titulo(), dto.id(), dto.nombreColeccion());
+                            hecho.setOrigen(fuente.getId());
+                            return hecho;
+                        }).toList()
+                );
+            } catch (NoSuchElementException e) {
+                continue;
             }
         }
-
-        return hechos;
     }
+    return hechos;
+}
+
 
     public List<Hecho> obtenerHechosPorColeccion(String nombreColeccion) {
 
@@ -54,7 +58,7 @@ public class Agregador {
         }
 
         ConsensosEnum estrategia = tipoConsensoXColeccion.get(nombreColeccion);
-        List<Hecho> hechos = obtenerHechosDeTodasLasFuentes(nombreColeccion);
+        List<Hecho> hechos = obtenerHechosDeTodasLasFuentes(nombreColeccion, estrategia.requiereHechosSinSolicitudes());
 
         return estrategia.getStrategy().aplicar(hechos, lista_fuentes);
     }
