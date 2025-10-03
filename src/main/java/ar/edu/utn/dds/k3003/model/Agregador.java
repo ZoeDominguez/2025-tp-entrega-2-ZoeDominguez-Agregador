@@ -1,12 +1,10 @@
 package ar.edu.utn.dds.k3003.model;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import ar.edu.utn.dds.k3003.facades.FachadaFuente;
-import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
-import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
+import ar.edu.utn.dds.k3003.app.FachadaFuente;
+import ar.edu.utn.dds.k3003.dto.ConsensosEnum;
+import ar.edu.utn.dds.k3003.dto.HechoDTO;
 import lombok.Data;
 
 @Data
@@ -57,34 +55,8 @@ public class Agregador {
 
         ConsensosEnum estrategia = tipoConsensoXColeccion.get(nombreColeccion);
         List<Hecho> hechos = obtenerHechosDeTodasLasFuentes(nombreColeccion);
-        Map<String, Hecho> hechosUnicos = hechos.stream()
-                .collect(Collectors.toMap(
-                        Hecho::getTitulo,
-                        Function.identity(),
-                        (existente, nuevo) -> existente));
-        switch (estrategia) {
-            case TODOS:
-                return new ArrayList<>(hechosUnicos.values());
-            case AL_MENOS_2:
-                if (lista_fuentes.size() == 1) {
-                    return new ArrayList<>(hechosUnicos.values());
-                } else {
-                    Set<String> titulos_Repetidos = hechos.stream()
-                            .collect(Collectors.groupingBy(Hecho::getTitulo,
-                                    Collectors.mapping(Hecho::getOrigen, Collectors.toSet())))
-                            .entrySet().stream()
-                            .filter(e -> e.getValue().size() >= 2)
-                            .map(Map.Entry::getKey)
-                            .collect(Collectors.toSet());
-                    return hechos.stream().filter(h -> titulos_Repetidos.contains(h.getTitulo()))
-                            .collect(Collectors.toMap(
-                                    Hecho::getTitulo, Function.identity(),
-                                    (h1, h2) -> h1))
-                            .values().stream().collect(Collectors.toList());
-                }
-            default:
-                throw new IllegalArgumentException("Estrategia no soportada: " + estrategia);
-        }
+
+        return estrategia.getStrategy().aplicar(hechos, lista_fuentes);
     }
 
     public void agregarFachadaAFuente(String fuenteId, FachadaFuente fuente) {

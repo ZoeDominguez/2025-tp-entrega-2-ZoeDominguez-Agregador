@@ -1,8 +1,8 @@
 package ar.edu.utn.dds.k3003.controller;
 
 import ar.edu.utn.dds.k3003.config.MetricsConfig;
-import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
-import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
+import ar.edu.utn.dds.k3003.app.Fachada;
+import ar.edu.utn.dds.k3003.dto.ConsensosEnum;
 import io.micrometer.core.instrument.Timer;
 
 import java.util.Map;
@@ -15,9 +15,9 @@ public class ConsensoController {
 
     private final MetricsConfig metricsConfig;
 
-    private final FachadaAgregador fachadaAgregador;
+    private final Fachada fachadaAgregador;
 
-    public ConsensoController(MetricsConfig metricsConfig, FachadaAgregador fachadaAgregador) {
+    public ConsensoController(MetricsConfig metricsConfig, Fachada fachadaAgregador) {
         this.metricsConfig = metricsConfig;
         this.fachadaAgregador = fachadaAgregador;
     }

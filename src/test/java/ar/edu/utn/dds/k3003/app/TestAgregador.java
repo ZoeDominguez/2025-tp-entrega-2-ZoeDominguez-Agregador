@@ -15,10 +15,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ar.edu.utn.dds.k3003.facades.FachadaFuente;
-import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
-import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
-import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
+import ar.edu.utn.dds.k3003.dto.ConsensosEnum;
+import ar.edu.utn.dds.k3003.dto.FuenteDTO;
+import ar.edu.utn.dds.k3003.dto.HechoDTO;
 
 @ExtendWith({ MockitoExtension.class })
 public class TestAgregador {

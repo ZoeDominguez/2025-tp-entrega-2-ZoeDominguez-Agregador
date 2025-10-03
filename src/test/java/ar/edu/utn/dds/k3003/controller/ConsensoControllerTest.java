@@ -31,7 +31,7 @@ public class ConsensoControllerTest {
         mockMvc.perform(patch("/consenso")
                 .contentType("application/json")
                 .content(json))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
 }

@@ -60,4 +60,8 @@ public class Hecho {
     public int hashCode() {
         return Objects.hash(titulo);
     }
+
+    public int getSolicitudes() {
+        throw new UnsupportedOperationException("Unimplemented method 'getSolicitudes'");
+    }
 }

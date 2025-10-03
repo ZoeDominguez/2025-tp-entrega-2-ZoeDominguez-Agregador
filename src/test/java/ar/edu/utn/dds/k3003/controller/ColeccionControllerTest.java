@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.NoSuchElementException;
+import java.util.Collections;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,9 +30,10 @@ public class ColeccionControllerTest {
 
     @Test
     public void listarHechosPorColeccion_DeberiaRetornarNotFoundSiNoHayHechos() throws Exception {
-        when(fachadaMock.hechos(anyString())).thenThrow(new NoSuchElementException("Colección no encontrada"));
+        when(fachadaMock.hechos(anyString())).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/coleccion/test/hechos"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/colecciones/test/hechos"))
+                .andExpect(status().isNoContent());
     }
+
 }

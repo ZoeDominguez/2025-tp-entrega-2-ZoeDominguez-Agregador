@@ -1,6 +1,8 @@
 package ar.edu.utn.dds.k3003.controller;
 
-import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
+import ar.edu.utn.dds.k3003.app.Fachada;
+import ar.edu.utn.dds.k3003.dto.FuenteDTO;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import ar.edu.utn.dds.k3003.app.Fachada;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

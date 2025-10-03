@@ -1,6 +1,7 @@
 package ar.edu.utn.dds.k3003.app;
 
 import java.security.InvalidParameterException;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -10,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ar.edu.utn.dds.k3003.clients.FuenteProxy;
-import ar.edu.utn.dds.k3003.facades.dtos.ConsensosEnum;
-import ar.edu.utn.dds.k3003.facades.dtos.FuenteDTO;
-import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
-import ar.edu.utn.dds.k3003.facades.FachadaAgregador;
-import ar.edu.utn.dds.k3003.facades.FachadaFuente;
+import ar.edu.utn.dds.k3003.dto.ConsensosEnum;
+import ar.edu.utn.dds.k3003.dto.FuenteDTO;
+import ar.edu.utn.dds.k3003.dto.HechoDTO;
 import ar.edu.utn.dds.k3003.model.Agregador;
 import ar.edu.utn.dds.k3003.model.Fuente;
 import ar.edu.utn.dds.k3003.model.Hecho;
@@ -26,7 +25,7 @@ import jakarta.transaction.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class Fachada implements FachadaAgregador {
+public class Fachada{
 
   private Agregador agregador = new Agregador();
 
@@ -48,22 +47,22 @@ public class Fachada implements FachadaAgregador {
   }
 
   @Transactional
-  @Override
   public FuenteDTO agregar(FuenteDTO fuenteDto) {
     String id = UUID.randomUUID().toString();
     Fuente fuente = new Fuente(id, fuenteDto.nombre(), fuenteDto.endpoint());
     fuenteRepository.save(fuente);
     this.DB_outdated_Fuentes= true;
+    agregador.setLista_fuentes(fuenteRepository.findAll());
     return convertirAFuenteDTO(fuente);
   }
 
-  @Override
+  
   public List<FuenteDTO> fuentes() {
     return fuenteRepository.findAll().stream().map(this::convertirAFuenteDTO).collect(Collectors.toList());
   }
 
 
-  @Override
+  
   public FuenteDTO buscarFuenteXId(String fuenteId) throws NoSuchElementException {
     return fuenteRepository.findById(fuenteId)
         .map(this::convertirAFuenteDTO)
@@ -72,7 +71,6 @@ public class Fachada implements FachadaAgregador {
 
 
   @Transactional
-  @Override
   public List<HechoDTO> hechos(String nombreColeccion) throws NoSuchElementException {
 
     System.out.println("Buscando hechos para colección: '" + nombreColeccion + "'");
@@ -86,7 +84,7 @@ public class Fachada implements FachadaAgregador {
     System.out.println("Hechos encontrados: " + (hechosModelo != null ? hechosModelo.size() : "null"));
 
     if (hechosModelo == null || hechosModelo.isEmpty()) {
-      throw new NoSuchElementException("Busqueda no encontrada de: " + nombreColeccion);
+      return Collections.emptyList();
     }
     return hechosModelo.stream()
       .map(this::convertirADTO)
@@ -94,16 +92,16 @@ public class Fachada implements FachadaAgregador {
   }
 
 
-  @Override
+  
   public void addFachadaFuentes(String fuenteId, FachadaFuente fuente) {
     agregador.agregarFachadaAFuente(fuenteId, fuente);
   }
 
 
-  @Override
+  
   public void setConsensoStrategy(ConsensosEnum tipoConsenso, String nombreColeccion)
       throws InvalidParameterException {
-    agregador.configurarConsenso(tipoConsenso, nombreColeccion);
+      agregador.configurarConsenso(tipoConsenso, nombreColeccion);
   }
 
   //* --------------------
