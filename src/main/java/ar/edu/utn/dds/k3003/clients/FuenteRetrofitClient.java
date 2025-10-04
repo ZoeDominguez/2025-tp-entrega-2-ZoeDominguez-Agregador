@@ -9,4 +9,7 @@ import java.util.List;
 public interface FuenteRetrofitClient {
     @GET("api/colecciones/{id}/hechos")
     Call<List<HechoDTO>> getHechosPorColeccion(@Path("id") String id);
+
+    @GET("api/colecciones/{id}/hechos-sin-solicitudes")
+    Call<List<HechoDTO>> getHechosPorColeccionSinSolicitudes(@Path("id") String id);
 }
