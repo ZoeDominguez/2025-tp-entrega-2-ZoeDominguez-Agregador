@@ -1,7 +1,8 @@
 package ar.edu.utn.dds.k3003.model;
 
-import ar.edu.utn.dds.k3003.app.Fachada; 
-import ar.edu.utn.dds.k3003.dto.HechoDTO; 
+import ar.edu.utn.dds.k3003.app.Fachada;
+import ar.edu.utn.dds.k3003.dto.HechoDTO;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -11,24 +12,25 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import jakarta.annotation.PostConstruct; 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-@Component 
+@Component
 public class AgregadorBot extends TelegramLongPollingBot {
 
-    private final Fachada fachada; 
+    private final Fachada fachada;
+    private final Dotenv dotenv;
 
     @Autowired
     public AgregadorBot(Fachada fachada) {
         super();
         this.fachada = fachada;
+        this.dotenv = Dotenv.load(); 
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        
         final String messageTextReceived = update.getMessage().getText();
         Long chatId = update.getMessage().getChatId();
         SendMessage message = new SendMessage();
@@ -38,15 +40,12 @@ public class AgregadorBot extends TelegramLongPollingBot {
 
         try {
             if (messageTextReceived.startsWith("/hechos ")) {
-                
                 String nombreColeccion = messageTextReceived.substring(8).trim();
-                
+
                 if (nombreColeccion.isEmpty()) {
                     responseText = "Por favor, especifica un nombre de colección. Ejemplo: /hechos miColeccion";
                 } else {
                     List<HechoDTO> hechos = fachada.hechos(nombreColeccion);
-                    
-                    // Formatea la respuesta
                     if (hechos.isEmpty()) {
                         responseText = "No se encontraron hechos para la colección: '" + nombreColeccion + "'.";
                     } else {
@@ -69,9 +68,8 @@ public class AgregadorBot extends TelegramLongPollingBot {
             responseText = "Ocurrió un error al procesar tu solicitud.";
             e.printStackTrace();
         }
-        
-        message.setText(responseText);
 
+        message.setText(responseText);
         try {
             execute(message);
         } catch (TelegramApiException e) {
@@ -81,18 +79,12 @@ public class AgregadorBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        // El documento recomienda usar variables de entorno [cite: 508-509]
-        // return System.getenv("NOMBRE_BOT");
-        return "PruebaAgregador_bot";
+        return dotenv.get("NOMBRE_BOT");
     }
 
     @Override
     public String getBotToken() {
-        // ¡¡ADVERTENCIA DE SEGURIDAD!!
-        // No dejes tu token en el código. 
-        // El documento recomienda usar variables de entorno [cite: 503, 512-513]
-        // return System.getenv("TOKEN_BOT");
-        return "8070715356:AAFe0zyKNozvQN5OX18E63-j7Sv7XxNfMQA";
+        return dotenv.get("TOKEN_BOT");
     }
 
     @PostConstruct
@@ -100,12 +92,10 @@ public class AgregadorBot extends TelegramLongPollingBot {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(this);
-            System.out.println("Bot de Telegram registrado exitosamente.");
+            System.out.println("✅ Bot de Telegram registrado exitosamente.");
         } catch (TelegramApiException e) {
-            System.err.println("Error al registrar el bot de Telegram:");
+            System.err.println("❌ Error al registrar el bot de Telegram:");
             e.printStackTrace();
         }
     }
-
-
 }
