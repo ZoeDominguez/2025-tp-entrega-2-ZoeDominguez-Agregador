@@ -76,15 +76,6 @@
       <artifactId>micrometer-registry-datadog</artifactId>
     </dependency>
 
-    <!-- Telegram -->
-
-    <dependency>
-      <groupId>org.telegram</groupId>
-      <artifactId>telegrambots</artifactId>
-      <version>6.5.0</version>
-    </dependency>
-
-
     
     <!-- Existing Dependencies -->
     <dependency>
