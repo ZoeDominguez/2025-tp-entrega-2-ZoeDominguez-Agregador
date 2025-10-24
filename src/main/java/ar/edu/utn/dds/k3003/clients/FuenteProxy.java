@@ -2,37 +2,35 @@ package ar.edu.utn.dds.k3003.clients;
 
 import ar.edu.utn.dds.k3003.app.FachadaFuente;
 import ar.edu.utn.dds.k3003.dto.HechoDTO;
+import okhttp3.OkHttpClient;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class FuenteProxy implements FachadaFuente {
 
     private final FuenteRetrofitClient service;
 
     public FuenteProxy(ObjectMapper objectMapper, String baseUrl) {
+
+         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)  
+                .readTimeout(15, TimeUnit.SECONDS)     
+                .writeTimeout(15, TimeUnit.SECONDS)  
+                .build();
+
         var retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl.endsWith("/") ? baseUrl : baseUrl + "/")
+                .client(okHttpClient)
                 .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .build();
 
         this.service = retrofit.create(FuenteRetrofitClient.class);
     }
-
-    // @Override
-    // public List<ColeccionDTO> colecciones() {
-    //     try {
-    //         var response = service.getColecciones().execute();
-    //         if (response.isSuccessful() && response.body() != null) {
-    //             return response.body();
-    //         }
-    //         throw new RuntimeException("Error al obtener colecciones: " + response.code());
-    //     } catch (Exception e) {
-    //         throw new RuntimeException("Fallo en la comunicación con fuente", e);
-    //     }
-    // }
 
     @Override
     public List<HechoDTO> buscarHechosXColeccion(String id) {
@@ -66,21 +64,4 @@ public class FuenteProxy implements FachadaFuente {
         }
     }
 
-    // @Override
-    // public ColeccionDTO agregar(ColeccionDTO coleccionDTO) { return null; }
-
-    // @Override
-    // public ColeccionDTO buscarColeccionXId(String id) { return null; }
-
-    // @Override
-    // public HechoDTO agregar(HechoDTO hechoDTO) { return null; }
-
-    // @Override
-    // public HechoDTO buscarHechoXId(String id) { return null; }
-
-    // @Override
-    // public void setProcesadorPdI(FachadaProcesadorPdI fachadaProcesadorPdI) { }
-
-    // @Override
-    // public PdIDTO agregar(PdIDTO pdIDTO) { return null; }
 }
