@@ -34,6 +34,11 @@ public class Agregador {
                         ? fachada.buscarHechosXColeccionSinSolicitudes(nombreColeccion)
                         : fachada.buscarHechosXColeccion(nombreColeccion);
 
+                if (hechosDTO == null || hechosDTO.isEmpty()) {
+                 System.out.println("Fuente " + fuente.getNombre() + " no tiene hechos.");
+                    continue;
+                }
+
                 hechos.addAll(
                     hechosDTO.stream()
                         .map(dto -> {
