@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +43,8 @@ public class FuenteProxy implements FachadaFuente {
                 System.out.println("Hechos encontrados: " + response.body().size());
                 return response.body();
             }
-            throw new RuntimeException("Error al obtener hechos: " + response.code());
+            System.out.println("Fuente sin hechos o sin respuesta válida (" + response.code() + ")");
+            return Collections.emptyList();
         } catch (Exception e) {
             throw new RuntimeException("Fallo en la comunicación con fuente", e);
         }

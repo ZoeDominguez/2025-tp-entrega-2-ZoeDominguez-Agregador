@@ -49,6 +49,9 @@ public class Agregador {
                 );
             } catch (NoSuchElementException e) {
                 continue;
+            } catch (Exception e) {
+                System.err.println("Error al obtener hechos de la fuente " + fuente.getNombre() + ": " + e.getMessage());
+                continue; 
             }
         }
     }
