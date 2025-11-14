@@ -1,9 +1,11 @@
-# Importing JDK and copying required files
-FROM maven:3.9.11-openjdk-18 AS build
-COPY . .
-run mvn clean package -DskipTests
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
 
-FROM openjdk:18-jdk-slim
-copy --from=build /target/my-app-name-1.0-SNAPSHOT.jar app.jar
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
