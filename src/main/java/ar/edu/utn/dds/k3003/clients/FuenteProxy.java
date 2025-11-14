@@ -34,10 +34,14 @@ public class FuenteProxy implements FachadaFuente {
     }
 
     @Override
-    public List<HechoDTO> buscarHechosXColeccion(String id) {
-        System.out.println("Buscando hechos para colección ID: '" + id + "'");
+    public List<HechoDTO> buscarHechosXColeccion(String coleccionId) {
+        if (coleccionId == null || coleccionId.isEmpty()) {
+            throw new IllegalArgumentException("El ID de colección no puede ser nulo o vacío");
+        }
+
+        System.out.println("Buscando hechos para colección ID: '" + coleccionId + "'");
         try {
-            var response = service.getHechosPorColeccion(id).execute();
+            var response = service.getHechosPorColeccion(coleccionId).execute();
             System.out.println("Response code: " + response.code());
             if (response.isSuccessful() && response.body() != null) {
                 System.out.println("Hechos encontrados: " + response.body().size());
@@ -51,19 +55,42 @@ public class FuenteProxy implements FachadaFuente {
     }
 
     @Override
-    public List<HechoDTO> buscarHechosXColeccionSinSolicitudes(String id){
-        System.out.println("Buscando hechos para colección ID: '" + id + "'");
+    public List<HechoDTO> buscarHechosXColeccionSinSolicitudes(String coleccionId) {
+        if (coleccionId == null || coleccionId.isEmpty()) {
+            throw new IllegalArgumentException("El ID de colección no puede ser nulo o vacío");
+        }
+
+        System.out.println("Buscando hechos (sin solicitudes) para colección ID: '" + coleccionId + "'");
         try {
-            var response = service.getHechosPorColeccionSinSolicitudes(id).execute();
+            var response = service.getHechosPorColeccionSinSolicitudes(coleccionId).execute();
             System.out.println("Response code: " + response.code());
             if (response.isSuccessful() && response.body() != null) {
                 System.out.println("Hechos encontrados: " + response.body().size());
                 return response.body();
             }
-            throw new RuntimeException("Error al obtener hechos: " + response.code());
+            System.out.println("Fuente sin hechos o sin respuesta válida (" + response.code() + ")");
+            return Collections.emptyList();
         } catch (Exception e) {
             throw new RuntimeException("Fallo en la comunicación con fuente", e);
         }
     }
+
+    @Override
+    public List<HechoDTO> buscarHechos() {
+        System.out.println("Buscando todos los hechos...");
+        try {
+            var response = service.getHechos().execute();
+            System.out.println("Response code: " + response.code());
+            if (response.isSuccessful() && response.body() != null) {
+                System.out.println("Hechos encontrados: " + response.body().size());
+                return response.body();
+            }
+            System.out.println("Fuente sin hechos o sin respuesta válida (" + response.code() + ")");
+            return Collections.emptyList();
+        } catch (Exception e) {
+            throw new RuntimeException("Fallo en la comunicación con fuente", e);
+        }
+    }
+
 
 }

@@ -9,4 +9,6 @@ public interface FachadaFuente {
   List<HechoDTO> buscarHechosXColeccion(String coleccionId) throws NoSuchElementException;
 
   List<HechoDTO> buscarHechosXColeccionSinSolicitudes(String id);
+
+  List<HechoDTO> buscarHechos();
 }

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,34 @@ public class Fachada{
     if (hechosModelo == null || hechosModelo.isEmpty()) {
       return Collections.emptyList();
     }
+    return hechosModelo.stream()
+      .map(this::convertirADTO)
+      .collect(Collectors.toList());
+  }
+
+  
+  public List<HechoDTO> obtenerTodosLosHechos() {
+
+    System.out.println("Buscando hechos");
+
+    syncFuentesIfNeeded();
+
+    System.out.println("Fuentes cargadas: " + agregador.getFachadaFuentes().size());
+
+    List<Hecho> hechosModelo = agregador.obtenerHechosDeTodasLasFuentes(null, true);
+
+    System.out.println("Hechos encontrados: " + (hechosModelo != null ? hechosModelo.size() : "null"));
+
+    if (hechosModelo == null || hechosModelo.isEmpty()) {
+      return Collections.emptyList();
+    }
+    hechosModelo.stream()
+                .collect(Collectors.toMap(
+                        Hecho::getTitulo,
+                        Function.identity(),
+                        (existente, nuevo) -> existente))
+                        .values();
+                        
     return hechosModelo.stream()
       .map(this::convertirADTO)
       .collect(Collectors.toList());

@@ -22,37 +22,37 @@ public class Agregador {
         tipoConsensoXColeccion.put(nombreColeccion, consenso);
     }
 
-    private List<Hecho> obtenerHechosDeTodasLasFuentes(
-        String nombreColeccion, boolean sinSolicitudes) {
+    public List<Hecho> obtenerHechosDeTodasLasFuentes(String nombreColeccion, boolean sinSolicitudes) {
     List<Hecho> hechos = new ArrayList<>();
 
     for (Fuente fuente : lista_fuentes) {
         FachadaFuente fachada = fachadaFuentes.get(fuente.getId());
-        if (fachada != null) {
-            try {
-                List<HechoDTO> hechosDTO = sinSolicitudes
+        if (fachada == null) continue;
+
+        try {
+            List<HechoDTO> hechosDTO;
+
+            if (nombreColeccion == null) {
+                hechosDTO = fachada.buscarHechos();
+                 System.out.println("Hechos encontrados: " + (hechosDTO != null ? hechosDTO.size() : "null"));
+            } else {
+                hechosDTO = sinSolicitudes
                         ? fachada.buscarHechosXColeccionSinSolicitudes(nombreColeccion)
                         : fachada.buscarHechosXColeccion(nombreColeccion);
-
-                if (hechosDTO == null || hechosDTO.isEmpty()) {
-                 System.out.println("Fuente " + fuente.getNombre() + " no tiene hechos.");
-                    continue;
-                }
-
-                hechos.addAll(
-                    hechosDTO.stream()
-                        .map(dto -> {
-                            Hecho hecho = new Hecho(dto.titulo(), dto.id(), dto.nombreColeccion());
-                            hecho.setOrigen(fuente.getId());
-                            return hecho;
-                        }).toList()
-                );
-            } catch (NoSuchElementException e) {
-                continue;
-            } catch (Exception e) {
-                System.err.println("Error al obtener hechos de la fuente " + fuente.getNombre() + ": " + e.getMessage());
-                continue; 
             }
+
+            if (hechosDTO == null || hechosDTO.isEmpty()) continue;
+
+            hechos.addAll(hechosDTO.stream()
+                    .map(dto -> {
+                        Hecho hecho = new Hecho(dto.titulo(), dto.id(), dto.nombreColeccion());
+                        hecho.setOrigen(fuente.getId());
+                        return hecho;
+                    })
+                    .toList());
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener hechos de la fuente " + fuente.getNombre() + ": " + e.getMessage());
         }
     }
     return hechos;
@@ -83,4 +83,5 @@ public class Agregador {
         fachadaFuentes.put(fuenteId, fuente);
         existe_Fuente.setFachadaFuente(fuente);
     }
+    
 }

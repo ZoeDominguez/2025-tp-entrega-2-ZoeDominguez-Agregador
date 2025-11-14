@@ -12,4 +12,7 @@ public interface FuenteRetrofitClient {
 
     @GET("api/colecciones/{id}/hechos-sin-solicitudes")
     Call<List<HechoDTO>> getHechosPorColeccionSinSolicitudes(@Path("id") String id);
+
+    @GET("api/hechos")
+    Call<List<HechoDTO>> getHechos();
 }
