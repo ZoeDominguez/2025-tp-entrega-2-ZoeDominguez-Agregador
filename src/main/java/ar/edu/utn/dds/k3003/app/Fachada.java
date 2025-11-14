@@ -108,14 +108,14 @@ public class Fachada{
     if (hechosModelo == null || hechosModelo.isEmpty()) {
       return Collections.emptyList();
     }
-    hechosModelo.stream()
+    List<Hecho>hechos = hechosModelo.stream()
                 .collect(Collectors.toMap(
                         Hecho::getTitulo,
                         Function.identity(),
                         (existente, nuevo) -> existente))
-                        .values();
+                        .values().stream().toList();
                         
-    return hechosModelo.stream()
+    return hechos.stream()
       .map(this::convertirADTO)
       .collect(Collectors.toList());
   }
