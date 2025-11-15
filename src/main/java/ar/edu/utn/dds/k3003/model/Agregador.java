@@ -45,7 +45,7 @@ public class Agregador {
 
             hechos.addAll(hechosDTO.stream()
                     .map(dto -> {
-                        Hecho hecho = new Hecho(dto.titulo(), dto.id(), dto.nombreColeccion());
+                        Hecho hecho = new Hecho(dto.titulo(), dto.id(), dto.nombreColeccion(),dto.etiquetas());
                         hecho.setOrigen(fuente.getId());
                         return hecho;
                     })

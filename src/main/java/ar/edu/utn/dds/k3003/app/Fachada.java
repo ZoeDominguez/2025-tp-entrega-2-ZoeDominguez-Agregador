@@ -142,7 +142,7 @@ public class Fachada{
   //* --------------------
 
   private HechoDTO convertirADTO(Hecho hecho) {
-    return new HechoDTO(hecho.getId(), hecho.getColeccionNombre(), hecho.getTitulo());
+    return new HechoDTO(hecho.getId(), hecho.getColeccionNombre(), hecho.getTitulo(), hecho.getEtiquetas());
   }
 
   private FuenteDTO convertirAFuenteDTO(Fuente fuente) {

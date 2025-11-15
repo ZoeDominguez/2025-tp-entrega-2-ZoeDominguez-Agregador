@@ -1,7 +1,9 @@
 package ar.edu.utn.dds.k3003.model;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
+
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,6 +25,8 @@ public class Hecho {
 
     @Column(name = "descripcion", nullable = false)
     private String descripcion;
+    
+    private List<String> etiquetas;
 
     @Column(name = "lugar", nullable = false)
     private String lugar;
@@ -40,10 +44,11 @@ public class Hecho {
     @JoinColumn(name = "Fuente_id", referencedColumnName = "id")
     private Fuente fuente;
 
-    public Hecho(String titulo, String id, String coleccion) {
+    public Hecho(String titulo, String id, String coleccion, List<String> etiquetas) {
         this.titulo = titulo;
         this.id = id;
         this.coleccionNombre = coleccion;
+        this.etiquetas = etiquetas;
     }
 
     @Override

@@ -140,17 +140,17 @@ public class TestAgregador {
         this.fachada.addFachadaFuentes(fuenteDTO3.id(), this.fuente3);
         this.fachada.setConsensoStrategy(consenso, "coleccionTest");
         Mockito.when(this.fuente1.buscarHechosXColeccion("coleccionTest"))
-                .thenReturn(List.of(new HechoDTO("1", "coleccionTest", "titulo1"),
-                        new HechoDTO("2", "coleccionTest", "titulo2"),
-                        new HechoDTO("3", "coleccionTest", "titulo3")));
+                .thenReturn(List.of(new HechoDTO("1", "coleccionTest", "titulo1",null),
+                        new HechoDTO("2", "coleccionTest", "titulo2", null),
+                        new HechoDTO("3", "coleccionTest", "titulo3", null)));
         Mockito.when(this.fuente2.buscarHechosXColeccion("coleccionTest"))
-                .thenReturn(List.of(new HechoDTO("4", "coleccionTest", "titulo1"),
-                        new HechoDTO("5", "coleccionTest", "titulo3"),
-                        new HechoDTO("6", "coleccionTest", "titulo5")));
+                .thenReturn(List.of(new HechoDTO("4", "coleccionTest", "titulo1", null),
+                        new HechoDTO("5", "coleccionTest", "titulo3", null),
+                        new HechoDTO("6", "coleccionTest", "titulo5",null)));
         Mockito.when(this.fuente3.buscarHechosXColeccion("coleccionTest"))
-                .thenReturn(List.of(new HechoDTO("7", "coleccionTest", "titulo1"),
-                        new HechoDTO("8", "coleccionTest", "titulo4"),
-                        new HechoDTO("9", "coleccionTest", "titulo2"), new HechoDTO("10", "coleccionTest", "titulo6")));
+                .thenReturn(List.of(new HechoDTO("7", "coleccionTest", "titulo1",null),
+                        new HechoDTO("8", "coleccionTest", "titulo4",null),
+                        new HechoDTO("9", "coleccionTest", "titulo2",null), new HechoDTO("10", "coleccionTest", "titulo6",null)));
     }
 
 }
